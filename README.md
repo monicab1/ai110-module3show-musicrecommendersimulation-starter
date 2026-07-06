@@ -19,15 +19,35 @@ Replace this paragraph with your own summary of what your version does.
 
 Explain your design in plain language.
 
+Major streaming platforms predict your next favorite song using two types of filtering: collaborative and content-based. Collaborative filtering analyzes user behavior patterns — if two users have similar listening histories, the system recommends each user's unique favorites to the other. Content-based filtering looks at the specific properties of a song and recommends other songs with similar properties. Core data inputs include implicit feedback (skips, completions, repeats, total listening time) and explicit feedback (likes, follows, thumbs up, adding a song to a library). Most real platforms use a hybrid of both. This version is content-based only, since it works from song features and a single user profile rather than multi-user behavior data. It prioritizes mood as the primary matching signal, since mood better captures situational listening intent — like working out, focusing, or relaxing — regardless of genre. Genre serves as a secondary signal, while energy and acousticness reinforce the mood match using a distance-to-target scoring approach that rewards songs close to the user's preference rather than simply higher or lower values.
+
 Some prompts to answer:
 
 - What features does each `Song` use in your system
-  - For example: genre, mood, energy, tempo
+
+Each Song uses genre, mood, energy, acousticness, valence, danceability, and tempo (tempo is stored but not weighted in the initial scoring version).
+
 - What information does your `UserProfile` store
+
+Each UserProfile stores a preferred mood, a preferred genre, and target values for energy, acousticness, valence, and danceability, representing the ideal song profile for that user.
+
 - How does your `Recommender` compute a score for each song
+
+The Recommender combines a weighted mix of categorical matches and numeric closeness. Mood and genre are scored as matches (exact match, partial/adjacent match, or no match), while energy, acousticness, valence, and danceability are scored using a distance-to-target formula that rewards songs closer to the user's preferred value rather than simply higher or lower values. These are combined into a single weighted score, with mood weighted highest, followed by genre, energy, acousticness, and valence/danceability.
+
 - How do you choose which songs to recommend
 
+Songs are ranked by their total weighted score from highest to lowest, and the top results are selected for the recommendation list, with a diversity rule applied so the top recommendations aren't dominated by a single artist.
+
 You can include a simple diagram or bullet list if helpful.
+
+**Scoring weights:**
+
+- Mood match: 35%
+- Genre match: 20%
+- Energy closeness: 20%
+- Acousticness closeness: 15%
+- Valence / danceability closeness: 10%
 
 ---
 
@@ -117,6 +137,3 @@ Write 1 to 2 paragraphs here about what you learned:
 
 - about how recommenders turn data into predictions
 - about where bias or unfairness could show up in systems like this
-
-
-
