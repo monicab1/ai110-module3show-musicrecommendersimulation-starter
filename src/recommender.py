@@ -266,14 +266,37 @@ def recommend_songs(user_prefs: Dict, songs: List[Dict], k: int = 5) -> List[Tup
     scored_songs.sort(key=lambda entry: entry[1], reverse=True)
 
     # Step 3 + 4: walk the ranked list, keeping the best-scoring songs
-    # until we have k recommendations, even if several come from the same artist.
+    # Enforce diversity: prefer at most one recommendation per artist.
+    # First pass: collect up to k recommendations, skipping songs whose
+    # artist already appears in the current results.
     recommendations: List[Tuple[Dict, float, str]] = []
+    seen_artists = set()
 
     for song, score, reasons in scored_songs:
         if len(recommendations) >= k:
             break
 
+        artist = (song.get("artist") or "").strip()
+        if artist in seen_artists:
+            # skip duplicate-artist entries in the primary pass
+            continue
+
         explanation = ", ".join(reasons) if reasons else "no strong matches"
         recommendations.append((song, score, explanation))
+        seen_artists.add(artist)
+
+    # If we didn't reach k unique-artist recommendations (catalog too small),
+    # fill the remaining slots with the highest-scoring songs regardless of artist.
+    if len(recommendations) < k:
+        for song, score, reasons in scored_songs:
+            if len(recommendations) >= k:
+                break
+
+            # skip songs already included
+            if any(s[0]["id"] == song.get("id") for s in recommendations):
+                continue
+
+            explanation = ", ".join(reasons) if reasons else "no strong matches"
+            recommendations.append((song, score, explanation))
 
     return recommendations
