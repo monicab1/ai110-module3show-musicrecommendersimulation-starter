@@ -216,7 +216,47 @@ def recommend_songs(user_prefs: Dict, songs: List[Dict], k: int = 5) -> List[Tup
     """
     Functional implementation of the recommendation logic.
     Required by src/main.py
+
+    Steps:
+      1. Score every song in the catalog using score_song().
+      2. Sort all scored songs from highest to lowest score.
+      3. Walk down the sorted list applying a diversity rule: skip a
+         song if its artist already has a recommendation in the
+         current results, so one artist can't dominate the top-k.
+      4. Return the top k as (song_dict, score, explanation) tuples,
+         where explanation is a human-readable string built from the
+         reasons list.
     """
-    # TODO: Implement scoring and ranking logic
-    # Expected return format: (song_dict, score, explanation)
-    return []
+    # Step 1: score every song, pairing each with its (score, reasons).
+    # A list comprehension is the Pythonic way to apply score_song to
+    # the whole catalog in one pass.
+    scored_songs = [
+        (song, *score_song(user_prefs, song))
+        for song in songs
+    ]
+
+    # Step 2: sort highest to lowest score. sorted() with a key and
+    # reverse=True avoids mutating the input list and keeps ties in
+    # their original (CSV) order, since Python's sort is stable.
+    scored_songs.sort(key=lambda entry: entry[1], reverse=True)
+
+    # Step 3 + 4: walk the ranked list, applying the diversity rule,
+    # and stop once we have k recommendations.
+    recommendations: List[Tuple[Dict, float, str]] = []
+    seen_artists = set()
+
+    for song, score, reasons in scored_songs:
+        if len(recommendations) >= k:
+            break
+
+        artist = song.get("artist")
+        if artist in seen_artists:
+            # Skip additional songs from an artist already recommended,
+            # so the top-k isn't dominated by a single artist.
+            continue
+
+        explanation = ", ".join(reasons) if reasons else "no strong matches"
+        recommendations.append((song, score, explanation))
+        seen_artists.add(artist)
+
+    return recommendations
