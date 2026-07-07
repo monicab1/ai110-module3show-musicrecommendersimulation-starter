@@ -9,3 +9,11 @@ id,title,artist,genre,mood,energy,tempo_bpm,valence,danceability,acousticness
 8,Night Drive Loop,Neon Echo,synthwave,moody,0.75,110,0.49,0.73,0.22
 9,Focus Flow,LoRoom,lofi,focused,0.40,80,0.59,0.60,0.78
 10,Rooftop Lights,Indigo Parade,indie pop,happy,0.76,124,0.81,0.82,0.35
+11,Broken Streetlights,Mara Vance,hip-hop,sad,0.55,88,0.28,0.71,0.15
+12,Moonlit Sonata Dreams,Elena Frost,classical,relaxed,0.30,66,0.55,0.22,0.95
+13,Riot Static,Cass Rivers,punk,rebellious,0.88,158,0.38,0.61,0.04
+14,Iron Verdict,Grim Anthem,metal,intense,0.97,168,0.35,0.55,0.03
+15,Slow Burn,Velvet Hour,r&b,romantic,0.50,84,0.68,0.65,0.40
+16,Pulse Overdrive,DJ Kairos,edm,euphoric,0.95,128,0.88,0.90,0.04
+17,Backroad Sundown,Cass Rivers,country,nostalgic,0.48,100,0.70,0.52,0.55
+18,Empty Chair,Mara Vance,hip-hop,sad,0.38,80,0.20,0.58,0.30
