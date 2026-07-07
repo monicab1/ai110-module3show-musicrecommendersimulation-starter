@@ -2,6 +2,31 @@ import csv
 from typing import List, Dict, Tuple, Optional
 from dataclasses import dataclass
 
+
+def _song_to_dict(song: "Song") -> Dict:
+    """Convert a Song dataclass into the dictionary shape used by the scoring helpers."""
+    return {
+        "id": song.id,
+        "title": song.title,
+        "artist": song.artist,
+        "genre": song.genre,
+        "mood": song.mood,
+        "energy": song.energy,
+        "tempo_bpm": song.tempo_bpm,
+        "valence": song.valence,
+        "danceability": song.danceability,
+        "acousticness": song.acousticness,
+    }
+
+
+def _user_to_prefs(user: "UserProfile") -> Dict:
+    """Convert a UserProfile dataclass into the preference dictionary expected by scoring."""
+    return {
+        "favorite_genre": user.favorite_genre,
+        "favorite_mood": user.favorite_mood,
+        "target_energy": user.target_energy,
+    }
+
 @dataclass
 class Song:
     """
@@ -240,23 +265,15 @@ def recommend_songs(user_prefs: Dict, songs: List[Dict], k: int = 5) -> List[Tup
     # their original (CSV) order, since Python's sort is stable.
     scored_songs.sort(key=lambda entry: entry[1], reverse=True)
 
-    # Step 3 + 4: walk the ranked list, applying the diversity rule,
-    # and stop once we have k recommendations.
+    # Step 3 + 4: walk the ranked list, keeping the best-scoring songs
+    # until we have k recommendations, even if several come from the same artist.
     recommendations: List[Tuple[Dict, float, str]] = []
-    seen_artists = set()
 
     for song, score, reasons in scored_songs:
         if len(recommendations) >= k:
             break
 
-        artist = song.get("artist")
-        if artist in seen_artists:
-            # Skip additional songs from an artist already recommended,
-            # so the top-k isn't dominated by a single artist.
-            continue
-
         explanation = ", ".join(reasons) if reasons else "no strong matches"
         recommendations.append((song, score, explanation))
-        seen_artists.add(artist)
 
     return recommendations
