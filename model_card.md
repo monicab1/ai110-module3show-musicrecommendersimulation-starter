@@ -85,18 +85,111 @@ Prompts:
 
 No need for numeric metrics unless you created some.
 
+### Stress test profiles
+
+I tested the recommender with three diverse preference profiles:
+
+- **High-Energy Pop**: `genre=pop`, `mood=happy`, `energy=0.9`
+- **Chill Lofi**: `genre=lofi`, `mood=chill`, `energy=0.2`, `target_acousticness=0.8`
+- **Deep Intense Rock**: `genre=rock`, `mood=intense`, `energy=0.95`
+
+### Terminal outputs
+
+**High-Energy Pop**
+
+```text
+Loaded songs: 18
+
+Top 5 Recommendations for profile: High-Energy Pop (genre=pop, mood=happy, energy=0.9)
+======================================================================================
+
+1. Sunrise City — Neon Echo
+   Score: 5.84 / 8.5
+   Reasons: genre match (+2.0), mood match (+2.0), energy closeness (+1.8)
+
+2. Rooftop Lights — Indigo Parade
+   Score: 4.72 / 8.5
+   Reasons: adjacent genre match (+1.0), mood match (+2.0), energy closeness (+1.7)
+
+3. Gym Hero — Max Pulse
+   Score: 3.94 / 8.5
+   Reasons: genre match (+2.0), energy closeness (+1.9)
+
+4. Night Drive Loop — Neon Echo
+   Score: 2.70 / 8.5
+   Reasons: adjacent genre match (+1.0), energy closeness (+1.7)
+
+5. Storm Runner — Voltline
+   Score: 1.98 / 8.5
+   Reasons: energy closeness (+2.0)
+```
+
+**Chill Lofi**
+
+```text
+Top 5 Recommendations for profile: Chill Lofi (genre=lofi, mood=chill, energy=0.2, target_acousticness=0.8)
+===========================================================================================================
+
+1. Library Rain — Paper Lanterns
+   Score: 7.11 / 8.5
+   Reasons: genre match (+2.0), mood match (+2.0), energy closeness (+1.7), acousticness closeness (+1.4)
+
+2. Midnight Coding — LoRoom
+   Score: 6.93 / 8.5
+   Reasons: genre match (+2.0), mood match (+2.0), energy closeness (+1.6), acousticness closeness (+1.4)
+
+3. Spacewalk Thoughts — Orbit Bloom
+   Score: 6.16 / 8.5
+   Reasons: adjacent genre match (+1.0), mood match (+2.0), energy closeness (+1.8), acousticness closeness (+1.3)
+
+4. Focus Flow — LoRoom
+   Score: 6.07 / 8.5
+   Reasons: genre match (+2.0), adjacent mood match (+1.0), energy closeness (+1.6), acousticness closeness (+1.5)
+
+5. Moonlit Sonata Dreams — Elena Frost
+   Score: 5.08 / 8.5
+   Reasons: adjacent genre match (+1.0), adjacent mood match (+1.0), energy closeness (+1.8), acousticness closeness (+1.3)
+```
+
+**Deep Intense Rock**
+
+```text
+Top 5 Recommendations for profile: Deep Intense Rock (genre=rock, mood=intense, energy=0.95)
+============================================================================================
+
+1. Storm Runner — Voltline
+   Score: 5.92 / 8.5
+   Reasons: genre match (+2.0), mood match (+2.0), energy closeness (+1.9)
+
+2. Iron Verdict — Grim Anthem
+   Score: 4.96 / 8.5
+   Reasons: adjacent genre match (+1.0), mood match (+2.0), energy closeness (+2.0)
+
+3. Gym Hero — Max Pulse
+   Score: 3.96 / 8.5
+   Reasons: mood match (+2.0), energy closeness (+2.0)
+
+4. Riot Static — Cass Rivers
+   Score: 3.86 / 8.5
+   Reasons: adjacent genre match (+1.0), adjacent mood match (+1.0), energy closeness (+1.9)
+
+5. Pulse Overdrive — DJ Kairos
+   Score: 2.00 / 8.5
+   Reasons: energy closeness (+2.0)
+```
+
 ---
 
-## 8. Future Work  
+## 8. Future Work
 
-Ideas for how you would improve the model next.  
+Ideas for how you would improve the model next.
 
-Prompts:  
+Prompts:
 
-- Additional features or preferences  
-- Better ways to explain recommendations  
-- Improving diversity among the top results  
-- Handling more complex user tastes  
+- Additional features or preferences
+- Better ways to explain recommendations
+- Improving diversity among the top results
+- Handling more complex user tastes
 
 ---
 
