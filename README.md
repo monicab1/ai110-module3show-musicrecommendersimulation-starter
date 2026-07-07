@@ -50,6 +50,50 @@ You can include a simple diagram or bullet list if helpful.
 - Valence / danceability closeness: 10%
 
 ---
+## Algorithm Recipe
+
+**Step 1 — Score each song on 5 components**
+
+| Component | Rule | Max Points |
+|---|---|---|
+| Genre match | Exact match = full points. Adjacent genre = half points. No match = 0. | 2.0 |
+| Mood match | Exact match = full points. Adjacent mood = half points. No match = 0. | 2.0 |
+| Energy closeness | `1 - abs(song.energy - target_energy)`, scaled to max 2.0 | 2.0 |
+| Acousticness closeness | `1 - abs(song.acousticness - target_acousticness)`, scaled to max 1.5 | 1.5 |
+| Valence / danceability closeness | Average of valence-closeness and danceability-closeness, scaled to max 1.0 | 1.0 |
+
+**Step 2 — Define "adjacent" categories**
+
+- Genre adjacency: `rock ↔ punk ↔ metal` (hard/guitar cluster), `lofi ↔ ambient ↔ jazz ↔ classical` (calm cluster), `pop ↔ indie pop ↔ synthwave` (upbeat/produced cluster)
+- Mood adjacency: `intense ↔ rebellious`, `chill ↔ relaxed ↔ focused`
+
+**Step 3 — Total score**
+
+score = genre_points + mood_points + energy_points + acousticness_points + valence_dance_points
+
+
+Max possible score = 2.0 + 2.0 + 2.0 + 1.5 + 1.0 = **8.5 points**
+
+**Step 4 — Rank and select**
+
+Sort all songs by total score, highest to lowest. Walk down the ranked list and apply a diversity rule: skip or demote a song if its artist already appears in the current top-N recommendations, so one artist can't dominate the list (e.g. `Neon Echo` and `LoRoom` each appear twice in the catalog).
+
+**Sample walk-through (using the sample `user_taste_profile`: rock/intense, energy=0.85, acousticness=0.10):**
+
+| Song | Genre | Mood | Notes |
+|---|---|---|---|
+| Storm Runner | rock (exact) | intense (exact) | Top candidate — exact-exact match, energy 0.91 and acousticness 0.10 are very close to target |
+| Iron Verdict | metal (adjacent) | intense (exact) | Strong runner-up — half genre points, full mood points, energy 0.97 is even higher than target |
+| Riot Static | punk (adjacent) | rebellious (adjacent) | Lower — half points on both categorical scores, though energy/acousticness are close |
+
+## Potential Biases to Watch For
+
+- **Genre lock-in:** Because genre adjacency is hand-picked (e.g. rock/punk/metal cluster), the system may never surface a genuinely good match from outside that cluster — for example, a high-energy, low-acousticness song in a genre I didn't think to group (like `edm`'s Pulse Overdrive, energy=0.95, acousticness=0.04) could be a strong content match but get 0 genre points simply because it wasn't manually placed in the "hard/guitar" cluster.
+- **Mood over-narrowing:** The adjacency map only covers moods present in my own reasoning about the sample profile. Moods like `euphoric`, `nostalgic`, or `romantic` aren't mapped to anything, so songs with those moods always score 0 on the mood component even if their numeric features are a near-perfect fit.
+- **Cold-start / small-catalog bias:** With only ~18 songs and a handful of artists, the diversity rule can end up promoting a weaker match just to avoid repeating an artist, which wouldn't reflect a real recommender working with a much larger catalog.
+- **Popularity/first-mover bias in ties:** If two songs tie on score, whichever comes first in the CSV will be recommended first — an artifact of data ordering rather than genuine preference.
+
+---
 
 ## Getting Started
 
