@@ -11,7 +11,12 @@ Your goal is to:
 - Evaluate what your system gets right and wrong
 - Reflect on how this mirrors real world AI recommenders
 
-Replace this paragraph with your own summary of what your version does.
+This project builds a simple music recommender. It looks at each song's
+mood, genre, and a few other traits like energy and acousticness. Then it
+compares those traits to what a listener likes, using a made-up "taste
+profile." Songs that match the listener's taste best get ranked highest
+and recommended first. The system also makes sure the list isn't filled
+with songs from just one artist.
 
 ---
 
