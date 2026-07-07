@@ -73,14 +73,144 @@ def load_songs(csv_path: str) -> List[Dict]:
     return songs
 
 
+# Genre adjacency clusters (Algorithm Recipe, Step 2)
+GENRE_ADJACENCY = {
+    "rock": {"punk", "metal"},
+    "punk": {"rock", "metal"},
+    "metal": {"rock", "punk"},
+    "lofi": {"ambient", "jazz", "classical"},
+    "ambient": {"lofi", "jazz", "classical"},
+    "jazz": {"lofi", "ambient", "classical"},
+    "classical": {"lofi", "ambient", "jazz"},
+    "pop": {"indie pop", "synthwave"},
+    "indie pop": {"pop", "synthwave"},
+    "synthwave": {"pop", "indie pop"},
+}
+
+# Mood adjacency clusters (Algorithm Recipe, Step 2)
+MOOD_ADJACENCY = {
+    "intense": {"rebellious"},
+    "rebellious": {"intense"},
+    "chill": {"relaxed", "focused"},
+    "relaxed": {"chill", "focused"},
+    "focused": {"chill", "relaxed"},
+}
+
+
+def _category_score(target: str, actual: str, adjacency: Dict[str, set], max_points: float) -> Tuple[float, Optional[str]]:
+    """
+    Shared helper for genre/mood scoring.
+    Exact match = full points, adjacent = half points, no match = 0.
+    Returns (points, reason_label) where reason_label is one of
+    'exact', 'adjacent', or None (no match).
+    """
+    if not target:
+        return 0.0, None
+
+    target = target.lower().strip()
+    actual = (actual or "").lower().strip()
+
+    if actual == target:
+        return max_points, "exact"
+    if actual in adjacency.get(target, set()):
+        return max_points / 2, "adjacent"
+    return 0.0, None
+
+
+def _closeness_score(song_value: float, target_value: Optional[float], max_points: float) -> float:
+    """
+    Distance-to-target scoring: 1 - abs(song_value - target_value), scaled to max_points.
+    If no target is provided, contributes 0 (feature not used in scoring).
+    """
+    if target_value is None:
+        return 0.0
+    closeness = 1 - abs(song_value - target_value)
+    closeness = max(0.0, closeness)  # guard against negative closeness
+    return closeness * max_points
+
+
 def score_song(user_prefs: Dict, song: Dict) -> Tuple[float, List[str]]:
     """
-    Scores a single song against user preferences.
-    Required by recommend_songs() and src/main.py
+    Scores a single song against user preferences using the Algorithm Recipe:
+
+      - Genre match:              max 2.0 (exact / adjacent / none)
+      - Mood match:                max 2.0 (exact / adjacent / none)
+      - Energy closeness:          max 2.0
+      - Acousticness closeness:    max 1.5
+      - Valence/danceability:      max 1.0 (average of the two closeness scores)
+
+    Total max score = 8.5
+
+    Accepts either the simple `main.py` style prefs
+    ({"genre", "mood", "energy"}) or the fuller UserProfile-style dict
+    ({"favorite_genre", "favorite_mood", "target_energy",
+      "target_acousticness", "target_valence", "target_danceability"}).
+
+    Returns (score, reasons) where reasons is a list of human-readable
+    strings like "genre match (+2.0)".
     """
-    # TODO: Implement scoring logic using your Algorithm Recipe from Phase 2.
-    # Expected return format: (score, reasons)
-    return []
+    reasons: List[str] = []
+
+    target_genre = user_prefs.get("favorite_genre", user_prefs.get("genre"))
+    target_mood = user_prefs.get("favorite_mood", user_prefs.get("mood"))
+    target_energy = user_prefs.get("target_energy", user_prefs.get("energy"))
+    target_acousticness = user_prefs.get("target_acousticness")
+    target_valence = user_prefs.get("target_valence")
+    target_danceability = user_prefs.get("target_danceability")
+
+    # --- Genre match (max 2.0) ---
+    genre_points, genre_match_type = _category_score(
+        target_genre, song.get("genre"), GENRE_ADJACENCY, 2.0
+    )
+    if genre_match_type == "exact":
+        reasons.append(f"genre match (+{genre_points:.1f})")
+    elif genre_match_type == "adjacent":
+        reasons.append(f"adjacent genre match (+{genre_points:.1f})")
+
+    # --- Mood match (max 2.0) ---
+    mood_points, mood_match_type = _category_score(
+        target_mood, song.get("mood"), MOOD_ADJACENCY, 2.0
+    )
+    if mood_match_type == "exact":
+        reasons.append(f"mood match (+{mood_points:.1f})")
+    elif mood_match_type == "adjacent":
+        reasons.append(f"adjacent mood match (+{mood_points:.1f})")
+
+    # --- Energy closeness (max 2.0) ---
+    energy_points = _closeness_score(song.get("energy", 0.0), target_energy, 2.0)
+    if target_energy is not None:
+        reasons.append(f"energy closeness (+{energy_points:.1f})")
+
+    # --- Acousticness closeness (max 1.5) ---
+    acousticness_points = _closeness_score(
+        song.get("acousticness", 0.0), target_acousticness, 1.5
+    )
+    if target_acousticness is not None:
+        reasons.append(f"acousticness closeness (+{acousticness_points:.1f})")
+
+    # --- Valence / danceability closeness (max 1.0, averaged) ---
+    valence_dance_points = 0.0
+    if target_valence is not None or target_danceability is not None:
+        valence_closeness = _closeness_score(song.get("valence", 0.0), target_valence, 1.0)
+        dance_closeness = _closeness_score(song.get("danceability", 0.0), target_danceability, 1.0)
+
+        # Average only over the components that actually have a target set,
+        # so a missing target doesn't unfairly drag the average to 0.
+        parts = [p for p, t in ((valence_closeness, target_valence), (dance_closeness, target_danceability)) if t is not None]
+        valence_dance_points = sum(parts) / len(parts) if parts else 0.0
+
+        if valence_dance_points > 0:
+            reasons.append(f"valence/danceability closeness (+{valence_dance_points:.1f})")
+
+    total_score = (
+        genre_points
+        + mood_points
+        + energy_points
+        + acousticness_points
+        + valence_dance_points
+    )
+
+    return total_score, reasons
 
 def recommend_songs(user_prefs: Dict, songs: List[Dict], k: int = 5) -> List[Tuple[Dict, float, str]]:
     """
