@@ -69,6 +69,13 @@ Prompts:
 - Genres or moods that are underrepresented  
 - Cases where the system overfits to one preference  
 - Ways the scoring might unintentionally favor some users  
+ 
+Simple notes about limitations and bias:
+
+- The model does not use listening history or context like time of day.
+- Some genres or moods may be underrepresented in the song list.
+- If a user only sets one preference (for example only `genre`), the results may ignore other tastes.
+- Users who set `energy` or other numeric targets have more influence on scoring.
 
 ---
 
@@ -78,10 +85,14 @@ How you checked whether the recommender behaved as expected.
 
 Prompts:  
 
-- Which user profiles you tested  
-- What you looked for in the recommendations  
-- What surprised you  
-- Any simple tests or comparisons you ran  
+- Which user profiles you tested
+I tested three profiles: a high-energy pop user, a chill lofi user, and a deep intense rock user. These profiles helped me check whether the recommendations matched different kinds of taste.  
+- What you looked for in the recommendations
+I looked for songs that matched the user's genre, mood, and energy preferences in a sensible way. I also checked whether the top results felt more like a good fit than random matches.  
+- What surprised you
+I was surprised that removing mood from the scoring changed the rankings a lot. The system still picked songs that fit genre and energy, but it became less sensitive to the vibe the user seemed to want.  
+- Any simple tests or comparisons you ran
+I ran the main script to inspect the recommendations and also compared the normal scoring run with a temporary version that skipped mood. The comparison showed that mood has a meaningful effect on the results.
 
 No need for numeric metrics unless you created some.
 
@@ -115,12 +126,12 @@ Top 5 Recommendations for profile: High-Energy Pop (genre=pop, mood=happy, energ
    Score: 3.94 / 8.5
    Reasons: genre match (+2.0), energy closeness (+1.9)
 
-4. Night Drive Loop — Neon Echo
-   Score: 2.70 / 8.5
-   Reasons: adjacent genre match (+1.0), energy closeness (+1.7)
-
-5. Storm Runner — Voltline
+4. Storm Runner — Voltline
    Score: 1.98 / 8.5
+   Reasons: energy closeness (+2.0)
+
+5. Riot Static — Cass Rivers
+   Score: 1.96 / 8.5
    Reasons: energy closeness (+2.0)
 ```
 
@@ -142,13 +153,13 @@ Top 5 Recommendations for profile: Chill Lofi (genre=lofi, mood=chill, energy=0.
    Score: 6.16 / 8.5
    Reasons: adjacent genre match (+1.0), mood match (+2.0), energy closeness (+1.8), acousticness closeness (+1.3)
 
-4. Focus Flow — LoRoom
-   Score: 6.07 / 8.5
-   Reasons: genre match (+2.0), adjacent mood match (+1.0), energy closeness (+1.6), acousticness closeness (+1.5)
-
-5. Moonlit Sonata Dreams — Elena Frost
+4. Moonlit Sonata Dreams — Elena Frost
    Score: 5.08 / 8.5
    Reasons: adjacent genre match (+1.0), adjacent mood match (+1.0), energy closeness (+1.8), acousticness closeness (+1.3)
+
+5. Coffee Shop Stories — Slow Stereo
+   Score: 5.03 / 8.5
+   Reasons: adjacent genre match (+1.0), adjacent mood match (+1.0), energy closeness (+1.7), acousticness closeness (+1.4)
 ```
 
 **Deep Intense Rock**
