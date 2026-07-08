@@ -5,7 +5,7 @@
 Give your model a short, descriptive name.  
 **That's My Song! 1.0**
 
-description: It captures that exact moment of joy when a track comes on and someone exclaims, "That’s my song!"
+##### description: It captures that exact moment of joy when a track comes on and someone exclaims, "That’s my song!"
 ---
 
 ## 2. Intended Use  
@@ -16,17 +16,17 @@ description: It captures that exact moment of joy when a track comes on and some
 
 **Prompts:**  
 
-**- What kind of recommendations does it generate?**
+- What kind of recommendations does it generate?
 
 **That's My Song! 1.0**, generates content-based matches — songs whose genre, mood, energy, acousticness, valence, and danceability numerically resemble what the user says they want.
 
 
-**- What assumptions does it make about the user?**  
+- What assumptions does it make about the user?
 
 The Recommender assumes the user can articulate their taste as a single fixed profile (one favorite genre, one favorite mood, a few target numbers) rather than taste being varied, contextual, or evolving.
 
 
-**- Is this for real users or classroom exploration?**
+- Is this for real users or classroom exploration?
 
 **That's My Song! 1.0** is intended for **Classroom exploration** use — The catalog is only (18 songs) and the logic is simplified for teaching how recommenders work, not for production use.
 
@@ -38,25 +38,23 @@ Songs are ranked by their total weighted score from highest to lowest, and the t
 
 **Prompts:**  
 
-**- What features of each song are used (genre, energy, mood, etc.)**
+- What features of each song are used (genre, energy, mood, etc.)
 
 Each Song uses genre, mood, energy, acousticness, valence, danceability, and tempo (tempo is stored but not weighted in the initial scoring version).
 
-**- What user preferences are considered**
+- What user preferences are considered
 
 Each UserProfile stores a preferred mood, a preferred genre, and target values for energy, acousticness, valence, and danceability, representing the ideal song profile for that user.
 
-**- How does the model turn those into a score**
+- How does the model turn those into a score
 
 **That's My Song! 1.0**, combines a weighted mix of categorical matches and numeric closeness. Mood and genre are scored as matches (exact match, partial/adjacent match, or no match), while energy, acousticness, valence, and danceability are scored using a distance-to-target formula that rewards songs closer to the user's preferred value rather than simply higher or lower values. These are combined into a single weighted score, with mood weighted highest, followed by genre, energy, acousticness, and valence/danceability.
     
-**- What changes did you make from the starter logic**
+- What changes did you make from the starter logic
 
-I kept `tempo_bpm` as a stored field on each `Song` (as suggested by the
-starter data), but chose not to add a `target_tempo` to the scoring formula.
-The starter recipe flagged this as an open gap; I decided to leave tempo
-unweighted in v1 so I could validate the 5-component scoring logic first
-before adding a 6th variable.
+Applied the diversity rule — walk the sorted list, tracking seen_artists in a set. Skip any song whose artist is already represented in the results, so one artist can't take multiple top-k slots.
+
+Build explanations — join the reasons list into a readable string.
 
 Another change is that the logic also selects songs more thoughtfully and displays simple reasons for each song choice.
 
@@ -70,19 +68,19 @@ The dataset has 18 songs across 12 genres (pop, lofi, rock, ambient, jazz, synth
 
 Prompts:  
 
-**- How many songs are in the catalog**
+- How many songs are in the catalog
 
 There are 18 songs in the dataset/catalog
 
 
-**- What genres or moods are represented**
+- What genres or moods are represented
 
 **12 genres:** pop, lofi, rock, ambient, jazz, synthwave, indie pop, hip-hop, classical, punk, metal, r&b, edm, country
 
 **12 moods:** happy, chill, intense, relaxed, focused, moody, sad, rebellious, romantic, euphoric, nostalgic
 
 
-**- Did you add or remove data**
+- Did you add or remove data
 
 **Yes, data was added** to the song dataset. The original set had 10 songs. **8 more** songs were added to give the Recommender more choices.
 
@@ -96,7 +94,7 @@ value, but the user profile has no corresponding target, so tempo is
 collected but currently unused by the recommender.
 
 
-**- Are there parts of musical taste missing in the dataset** 
+- Are there parts of musical taste missing in the dataset 
 Yes, several:
 
 - Lyrics/language/theme — nothing about lyrical content, explicitness, language, or subject matter, so two songs with identical numeric features but opposite messages score the same.
@@ -116,7 +114,7 @@ Yes, several:
 
 Prompts:  
 
-**- User types for which it gives reasonable results**
+- User types for which it gives reasonable results
 
 **That's My Song! 1.0**, works best for users whose favorite mood and genre fall inside a defined cluster and who have a clear energy target, for example:
 
@@ -124,11 +122,16 @@ Prompts:
 "High-Energy Pop" (pop/happy, energy≈0.9) — pop, indie pop, and synthwave are clustered, so Sunrise City, Rooftop Lights, and Night Drive Loop all surface reasonably, and Gym Hero picks up strong energy closeness even without a mood match.
 "Chill Lofi" (lofi/chill, energy≈0.2, acousticness≈0.8) — the lofi/ambient/jazz/classical cluster plus the chill/relaxed/focused mood cluster means Library Rain, Spacewalk Thoughts, Coffee Shop Stories, and Focus Flow all cross-pollinate well, giving a coherent chill-catalog result.
 
-**- Any patterns you think your scoring captures correctly**
+- Any patterns you think your scoring captures correctly
 
 **That's My Song! 1.0**, picks songs that closely match the mood and energy a listener asks for. It also avoids showing the same artist over and over. This mirrors how real music apps try to match your vibe, not just your favorite genre
 
-**- Cases where the recommendations matched your intuition**  
+- Cases where the recommendations matched your intuition
+
+Sample taste profile (rock/intense) → top 3 matches the README's expected order exactly: 
+Storm Runner (8.37) > Iron Verdict (7.03) > Riot Static (6.27).
+
+Diversity rule check (pop/happy profile) → only one Neon Echo track appears in the top 5, even though both of their songs score well — confirming the rule prevents artist domination.
 
 ---
 
@@ -140,19 +143,19 @@ One clear weakness is in how the mood-matching system handles moods outside its 
 
 Prompts:  
 
-**- Features it does not consider**
+- Features it does not consider
 
 **That's My Song! 1.0**, does not consider the following features: Lyrics, cultural/language context, listening history, implicit feedback (skips/repeats), explicit feedback (likes/saves), and multi-user collaborative signals.
 
-**- Genres or moods that are underrepresented**
+- Genres or moods that are underrepresented
 
 Genres like hip-hop, r&b, edm, country, and classical(outside its one cluster) have no adjacency partners; moods like euphoric, romantic, nostalgic, moody, and sad aren't mapped to anything either.
 
-**- Cases where the system overfits to one preference**
+- Cases where the system overfits to one preference
 
 **Yes**, the system can overfit to one preference, because mood and genre are weighted heaviest, a user who nails an exact mood/genre match can rank highly even if their energy or acousticness is a poor fit, overemphasizing category labels over overall similarity.
 
-**- Ways the scoring might unintentionally favor some users**
+- Ways the scoring might unintentionally favor some users
 
 **Yes**, the scoring can unintentionally favor some users whose taste falls inside a defined adjacency cluster (rock/punk/metal, lofi/ambient/jazz/classical, pop/indie pop/synthwave) get partial credit for near-misses, while users who like anything outside those clusters only ever get all-or-nothing scoring.
  
@@ -171,23 +174,22 @@ Genres like hip-hop, r&b, edm, country, and classical(outside its one cluster) h
 
 **Prompts:**  
 
-**- Which user profiles you tested**
+- Which user profiles you tested
 
 I tested three profiles: a high-energy pop user, a chill lofi user, and a deep intense rock user. These profiles helped me check whether the recommendations matched different kinds of taste.
 
-**- What you looked for in the recommendations**
+- What you looked for in the recommendations
 
 I looked for songs that matched the user's genre, mood, and energy preferences in a sensible way. I also checked whether the top results felt more like a good fit than random matches.  
 
-**- What surprised you**
+- What surprised you
 
 I was surprised that removing mood from the scoring changed the rankings a lot. The system still picked songs that fit genre and energy, but it became less sensitive to the vibe the user seemed to want.  
 
-**- Any simple tests or comparisons you ran**
+- Any simple tests or comparisons you ran
 
 I ran the main script to inspect the recommendations and also compared the normal scoring run with a temporary version that skipped mood. The comparison showed that mood has a meaningful effect on the results.
 
-No need for numeric metrics unless you created some.
 
 ### Stress test profiles
 
@@ -290,15 +292,15 @@ Ideas for how you would improve the model next.
 
 Prompts:
 
-**- Additional features or preferences**
+- Additional features or preferences
 
 Right now, moods like "sad" or "romantic" get ignored completely, even if the song fits well. Adding those missing moods would let more good songs get picked. We could also use song speed (tempo), since that affects how a song feels just as much as energy does.
 
-**- Better ways to explain recommendations**
+- Better ways to explain recommendations
 
 The reasons given for a song are short and use technical scoring language. Simpler wording, like "this song matches your happy mood," would help users understand why a song was picked. Clearer reasons would also help users adjust their preferences to get better results next time.
 
-**- Improving diversity among the top results**
+- Improving diversity among the top results
 
 Currently, the system only makes sure artists aren't repeated too much. It doesn't do the same for genres or moods, so results can still feel repetitive. Adding variety across genres and moods would make the recommendations feel richer.
 
