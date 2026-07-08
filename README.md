@@ -181,17 +181,42 @@ Top 5 Recommendations for profile: genre=pop, mood=happy, energy=0.8
 
 ## Experiments You Tried
 
-Use this section to document the experiments you ran. For example:
+Use this section to document the experiments you ran.
 
-- What happened when you changed the weight on genre from 2.0 to 0.5
-- What happened when you added tempo or valence to the score
-- How did your system behave for different types of users
+# Test 1: Does Mood Matter More Than Genre?
+
+**What was tested:** I wanted to see if changing how much "mood" counts versus "genre" changes which songs get recommended. Right now genre and mood count equally in the scoring.
+
+**Profiles used:** I tested a rock and intense music fan. I picked three songs on purpose: one that matches perfectly, one that's close but a different genre, and one that's close but a different mood.
+
+**Results:** The song order stayed exactly the same both times, even after the math was changed. This showed me the system's ranking is stable and not overly sensitive to this particular setting.
+
+| Song | Equal Weighting Score | Mood-Focused Score |
+|---|---|---|
+| Storm Runner | 7.38 | 8.06 |
+| Iron Verdict | 6.15 | 6.98 |
+| Riot Static | 5.35 | 5.69 |
+
+---
+
+# Test 2: What Happens If Genre Matters Less?
+
+**What was tested:** I lowered how much "genre" counts in the scoring, from a high value down to a much smaller one. I wanted to see if less-rock songs could suddenly jump ahead of rock songs.
+
+**Profiles used:** I used a listener who wants intense, high-energy rock music. This profile has clear favorites, so it's easy to see if the system starts recommending "wrong" genres.
+
+**Results:** The top song stayed the same both times, so the system still picked correctly. But the scores got much closer together, meaning a small nudge in that setting could someday flip the results.
+
+| Song | Genre Weight = 2.0 (before) | Genre Weight = 0.5 (after) |
+|---|---|---|
+| Storm Runner (rock) | 5.92 | 4.42 |
+| Iron Verdict (metal) | 4.96 | 4.21 |
+| Gym Hero (pop) | 3.96 | 3.96 |
 
 ---
 
 ## Limitations and Risks
 
-Summarize some limitations of your recommender.
 
 **Limitations Summary**
 
