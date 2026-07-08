@@ -3,7 +3,7 @@
 ## 1. Model Name  
 
 Give your model a short, descriptive name.  
-**That's My Song! 1.0**  
+**That's My Song! 1.0**
 
 description: It captures that exact moment of joy when a track comes on and someone exclaims, "That’s my song!"
 ---
@@ -20,9 +20,11 @@ description: It captures that exact moment of joy when a track comes on and some
 
 **That's My Song! 1.0**, generates content-based matches — songs whose genre, mood, energy, acousticness, valence, and danceability numerically resemble what the user says they want.
 
+
 **- What assumptions does it make about the user?**  
 
 The Recommender assumes the user can articulate their taste as a single fixed profile (one favorite genre, one favorite mood, a few target numbers) rather than taste being varied, contextual, or evolving.
+
 
 **- Is this for real users or classroom exploration?**
 
