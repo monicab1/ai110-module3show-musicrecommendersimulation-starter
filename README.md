@@ -175,8 +175,6 @@ Top 5 Recommendations for profile: genre=pop, mood=happy, energy=0.8
    Reasons: energy closeness (+1.8)
 ```
 
-**Screenshot or video** *(optional)*: <!-- Insert a screenshot or demo video link here -->
-
 ---
 
 ## Experiments You Tried
@@ -241,4 +239,12 @@ Read and complete `model_card.md`:
 Write 1 to 2 paragraphs here about what you learned:
 
 - about how recommenders turn data into predictions
+
+Songs are ranked by their total weighted score from highest to lowest, and the top results are selected for the recommendation list, with a diversity rule applied so the top recommendations aren't dominated by a single artist.
+
+Recommenders turn data into predictions by combining a weighted mix of categorical matches and numeric closeness. Mood and genre are scored as matches (exact match, partial/adjacent match, or no match), while energy, acousticness, valence, and danceability are scored using a distance-to-target formula that rewards songs closer to the user's preferred value rather than simply higher or lower values. These are combined into a single weighted score, with mood weighted highest, followed by genre, energy, acousticness, and valence/danceability.
+
+
 - about where bias or unfairness could show up in systems like this
+
+Biases can show up if a user only sets one preference (for example only `genre`), the results may ignore other tastes. Another example where bias could show up is when users who set `energy` or other numeric targets have more influence on scoring.
