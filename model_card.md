@@ -323,7 +323,26 @@ A few sentences about your experience.
 
 Prompts:  
 
-- What you learned about recommender systems  
-- Something unexpected or interesting you discovered  
-- How this changed the way you think about music recommendation apps  
+- What you learned about recommender systems
 
+Recommenders are only as good as the traits they measure. For example, if a system leans too heavily on a few numbers like genre and energy, it can miss the overall "feel" a person is actually looking for.
+
+
+- Something unexpected or interesting you discovered
+
+I was surprised that removing mood from the scoring changed the rankings a lot. The system still picked songs that fit genre and energy, but it became less sensitive to the vibe the user seemed to want. 
+
+
+- How this changed the way you think about music recommendation apps
+
+Based on what I observed, when I use a real music recommender application, there are probably a lot of good songs that I am missing out on in the recommendation that I receive. The more information I can give to the recommender, the better the expected results will be. Basically, I will get back what I give to the recommender.
+
+
+- What was your biggest learning moment during this project?
+
+Numbers do not always capture the users taste. For example, the song 'Gym Hero' would show up for people who only want to listen to 'Happy Pop'. In theory the song would match the pop genre but it is intese and could thus be the wrong vibe.
+
+
+- How did using AI tools help you, and when did you need to double-check them?
+
+ AI was great for quickly writing and testing scoring logic, but I had to double-check things like the Gym Hero case myself, since the AI won't automatically notice when a "correct" score still produces a recommendation that feels off to a real listener.
